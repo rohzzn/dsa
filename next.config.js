@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-};
+  output: 'standalone',
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx']
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
