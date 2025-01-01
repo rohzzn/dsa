@@ -52,12 +52,7 @@ const Contests = () => {
       setLoading(true);
       // Using Kontests API to fetch contest data
       const responses = await Promise.all([
-        fetch('https://kontests.net/api/v1/leet_code'),
-        fetch('https://kontests.net/api/v1/codeforces'),
-        fetch('https://kontests.net/api/v1/at_coder'),
-        fetch('https://kontests.net/api/v1/code_chef'),
-        fetch('https://kontests.net/api/v1/hacker_earth'),
-        fetch('https://kontests.net/api/v1/top_coder')
+        fetch('https://kontests.net/api/v1/all'),
       ]);
 
       const results = await Promise.all(responses.map(r => r.json()));
