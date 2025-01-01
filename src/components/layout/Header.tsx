@@ -1,13 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
-import { Button } from '../ui/button'
 const Header: React.FC = () => {
   return (
     <header className="bg-white border-b shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700">
-            DSA.gay
+            DSA 
           </Link>
           <nav className="flex items-center space-x-8">
             <Link href="/roadmap" className="text-gray-600 hover:text-blue-600 font-medium">
@@ -22,7 +21,6 @@ const Header: React.FC = () => {
             <Link href="/practice" className="text-gray-600 hover:text-blue-600 font-medium">
               Practice
             </Link>
-            <Button variant="outline">Sign In</Button>
           </nav>
         </div>
       </div>
