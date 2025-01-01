@@ -18,8 +18,8 @@ const Header: React.FC = () => {
             <Link href="/resources" className="text-gray-600 hover:text-blue-600 font-medium">
               Resources
             </Link>
-            <Link href="/practice" className="text-gray-600 hover:text-blue-600 font-medium">
-              Practice
+            <Link href="/contests" className="text-gray-600 hover:text-blue-600 font-medium">
+              Contests
             </Link>
           </nav>
         </div>
