@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Globe, Clock, Trophy, Loader2 } from 'lucide-react';
@@ -9,23 +9,49 @@ interface Contest {
   name: string;
   startTime: string;
   endTime: string;
-  duration: string;
+  duration: number;
   url: string;
   status: string;
 }
 
-interface Platform {
+interface CodeforcesContest {
+  id: number;
   name: string;
-  color: string;
-  bgColor: string;
-  borderColor: string;
+  type: string;
+  phase: string;
+  durationSeconds: number;
+  startTimeSeconds: number;
 }
 
-interface Platforms {
-  [key: string]: Platform;
+interface LeetCodeContest {
+  title: string;
+  titleSlug: string;
+  startTime: number;
+  duration: number;
 }
 
-const platforms: Platforms = {
+interface AtCoderContest {
+  id: string;
+  title: string;
+  start_time: string;
+  duration: string;
+}
+
+interface CodechefContest {
+  contest_code: string;
+  contest_name: string;
+  contest_start_date_iso: string;
+  contest_end_date_iso: string;
+}
+
+interface HackerRankContest {
+  slug: string;
+  name: string;
+  start_time: string;
+  end_time: string;
+}
+
+const platforms: Record<string, { name: string; color: string; bgColor: string; borderColor: string }> = {
   leetcode: {
     name: 'LeetCode',
     color: 'text-yellow-600',
@@ -50,54 +76,106 @@ const platforms: Platforms = {
     bgColor: 'bg-orange-50',
     borderColor: 'border-orange-200'
   },
-  hackerearth: {
-    name: 'HackerEarth',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200'
-  },
-  topcoder: {
-    name: 'TopCoder',
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200'
+  hackerrank: {
+    name: 'HackerRank',
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200'
   }
 };
 
-const ContestsPage: React.FC = () => {
+const ContestsPage = () => {
   const [contests, setContests] = useState<Contest[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  async function fetchCodeforces(): Promise<Contest[]> {
+    const response = await fetch('https://codeforces.com/api/contest.list');
+    const data = await response.json();
+    const contests = data.result as CodeforcesContest[];
+    
+    return contests
+      .filter(contest => contest.phase === "BEFORE")
+      .map(contest => ({
+        id: `cf-${contest.id}`,
+        platform: 'codeforces',
+        name: contest.name,
+        startTime: new Date(contest.startTimeSeconds * 1000).toISOString(),
+        endTime: new Date((contest.startTimeSeconds + contest.durationSeconds) * 1000).toISOString(),
+        duration: contest.durationSeconds,
+        url: `https://codeforces.com/contest/${contest.id}`,
+        status: 'UPCOMING'
+      }));
+  }
+
+  async function fetchAtCoder(): Promise<Contest[]> {
+    const response = await fetch('https://atcoder.jp/contests/calendar.json');
+    const contests = await response.json() as AtCoderContest[];
+    
+    return contests
+      .filter(contest => new Date(contest.start_time) > new Date())
+      .map(contest => ({
+        id: `ac-${contest.id}`,
+        platform: 'atcoder',
+        name: contest.title,
+        startTime: contest.start_time,
+        endTime: new Date(new Date(contest.start_time).getTime() + 
+                 parseInt(contest.duration) * 60000).toISOString(),
+        duration: parseInt(contest.duration) * 60,
+        url: `https://atcoder.jp/contests/${contest.id}`,
+        status: 'UPCOMING'
+      }));
+  }
+  
+  async function fetchLeetCode(): Promise<Contest[]> {
+    const response = await fetch('https://leetcode.com/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `{
+          allContests {
+            title
+            titleSlug
+            startTime
+            duration
+          }
+        }`
+      })
+    });
+    
+    const data = await response.json();
+    const contests = data.data.allContests as LeetCodeContest[];
+    
+    return contests
+      .filter(contest => contest.startTime * 1000 > Date.now())
+      .map(contest => ({
+        id: `lc-${contest.titleSlug}`,
+        platform: 'leetcode',
+        name: contest.title,
+        startTime: new Date(contest.startTime * 1000).toISOString(),
+        endTime: new Date((contest.startTime + contest.duration) * 1000).toISOString(),
+        duration: contest.duration,
+        url: `https://leetcode.com/contest/${contest.titleSlug}`,
+        status: 'UPCOMING'
+      }));
+  }
 
   const fetchContests = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/contests');
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid data format received');
-      }
+      const results = await Promise.allSettled([
+        fetchCodeforces(),
+        fetchAtCoder(),
+        fetchLeetCode()
+      ]);
 
-      const allContests = data.map((contest: any) => ({
-        id: `${contest.name}-${contest.start_time}`,
-        platform: getPlatformFromUrl(contest.url),
-        name: contest.name,
-        startTime: contest.start_time,
-        endTime: contest.end_time,
-        duration: formatDuration(parseInt(contest.duration)),
-        url: contest.url,
-        status: contest.status || 'UPCOMING'
-      }));
+      const allContests = results.flatMap(result => 
+        result.status === 'fulfilled' ? result.value : []
+      );
 
       const sortedContests = allContests
-        .filter((contest: Contest) => new Date(contest.endTime) > new Date())
-        .sort((a: Contest, b: Contest) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+        .filter(contest => new Date(contest.endTime) > new Date())
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
 
       setContests(sortedContests);
       setError(null);
@@ -115,42 +193,29 @@ const ContestsPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getPlatformFromUrl = (url: string): string => {
-    if (url.includes('leetcode')) return 'leetcode';
-    if (url.includes('codeforces')) return 'codeforces';
-    if (url.includes('atcoder')) return 'atcoder';
-    if (url.includes('codechef')) return 'codechef';
-    if (url.includes('hackerearth')) return 'hackerearth';
-    if (url.includes('topcoder')) return 'topcoder';
-    return 'other';
-  };
-
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    return hours > 0 ? `${hours} hours${minutes > 0 ? ` ${minutes} minutes` : ''}` : `${minutes} minutes`;
+    return hours > 0 
+      ? `${hours} hours${minutes > 0 ? ` ${minutes} minutes` : ''}`
+      : `${minutes} minutes`;
   };
 
-  const addToCalendar = (contest: Contest): void => {
+  const addToCalendar = (contest: Contest) => {
     const startTime = new Date(contest.startTime);
     const endTime = new Date(contest.endTime);
     
-    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(contest.name)}&dates=${startTime.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}\/${endTime.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')}&details=${encodeURIComponent(`${platforms[contest.platform]?.name || 'Coding'} Contest\nURL: ${contest.url}`)}`;
+    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${
+      encodeURIComponent(`${platforms[contest.platform]?.name || 'Coding'} Contest: ${contest.name}`)
+    }&dates=${
+      startTime.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+    }/${
+      endTime.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+    }&details=${
+      encodeURIComponent(`${platforms[contest.platform]?.name || 'Coding'} Contest\nURL: ${contest.url}`)
+    }`;
     
     window.open(googleCalendarUrl, '_blank');
-  };
-
-  const formatDate = (dateString: string): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short'
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   if (loading) {
@@ -219,11 +284,21 @@ const ContestsPage: React.FC = () => {
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-600">{contest.duration}</span>
+                      <span className="text-gray-600">{formatDuration(contest.duration)}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-600">{formatDate(contest.startTime)}</span>
+                      <span className="text-gray-600">
+                        {new Date(contest.startTime).toLocaleString(undefined, {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          timeZoneName: 'short'
+                        })}
+                      </span>
                     </div>
                   </div>
                   <div className="flex space-x-4">
