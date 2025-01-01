@@ -12,8 +12,8 @@ const Header: React.FC = () => {
             <Link href="/roadmap" className="text-gray-600 hover:text-blue-600 font-medium">
               Roadmap
             </Link>
-            <Link href="/creators" className="text-gray-600 hover:text-blue-600 font-medium">
-              Creators
+            <Link href="/learn" className="text-gray-600 hover:text-blue-600 font-medium">
+              Learn
             </Link>
             <Link href="/resources" className="text-gray-600 hover:text-blue-600 font-medium">
               Resources

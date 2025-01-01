@@ -25,9 +25,9 @@ export default function Home() {
      textColor: 'text-purple-600'  
    },
    {
-     title: 'Creators',
-     description: 'Learn from top DSA educators',
-     link: '/creators',
+    title: 'Learn',
+    description: 'Access curated courses and resources',
+    link: '/learn',
      bgColor: 'bg-orange-50',
      textColor: 'text-orange-600'
    }
