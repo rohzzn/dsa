@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import Roadmap from '@/components/sections/Roadmap'
 import Creators from '@/components/sections/Creators'
@@ -20,7 +19,7 @@ export default function Home() {
         </header>
 
         <Tabs defaultValue="roadmap" className="space-y-8">
-          <TabsList className="grid grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="roadmap" className="flex items-center gap-2">
               <Map className="w-4 h-4" />
               Roadmap
@@ -42,15 +41,12 @@ export default function Home() {
           <TabsContent value="roadmap">
             <Roadmap />
           </TabsContent>
-
           <TabsContent value="creators">
             <Creators />
           </TabsContent>
-
           <TabsContent value="resources">
             <Resources />
           </TabsContent>
-
           <TabsContent value="practice">
             <Practice />
           </TabsContent>
