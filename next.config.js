@@ -6,7 +6,7 @@ const nextConfig = {
     return [
       {
         source: '/api/contests',
-        destination: 'https://kontests.net/api/v1/all'
+        destination: '/api/contests'
       }
     ]
   }
