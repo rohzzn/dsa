@@ -73,22 +73,27 @@ const ContestsPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await fetch('/api/contests');
-      if (!response.ok) throw new Error('Failed to fetch contests');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
       const data = await response.json();
-      const allContests = data.map((contest: { name: string; start_time: string; end_time: string; duration: string; url: string; status?: string }) => {
-        const platform = getPlatformFromUrl(contest.url);
-        return {
-          id: contest.name + contest.start_time,
-          platform,
-          name: contest.name,
-          startTime: contest.start_time,
-          endTime: contest.end_time,
-          duration: formatDuration(parseInt(contest.duration)),
-          url: contest.url,
-          status: contest.status || 'UPCOMING'
-        };
-      });
+      
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format received');
+      }
+
+      const allContests = data.map((contest: any) => ({
+        id: `${contest.name}-${contest.start_time}`,
+        platform: getPlatformFromUrl(contest.url),
+        name: contest.name,
+        startTime: contest.start_time,
+        endTime: contest.end_time,
+        duration: formatDuration(parseInt(contest.duration)),
+        url: contest.url,
+        status: contest.status || 'UPCOMING'
+      }));
 
       const sortedContests = allContests
         .filter((contest: Contest) => new Date(contest.endTime) > new Date())
@@ -96,7 +101,8 @@ const ContestsPage: React.FC = () => {
 
       setContests(sortedContests);
       setError(null);
-    } catch {
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError('Failed to fetch contest data. Please try again later.');
     } finally {
       setLoading(false);
