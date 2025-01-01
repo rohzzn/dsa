@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Code,  Users, BookOpen, Terminal, Cpu, 
+import { Code, Users, BookOpen, Terminal, Cpu, 
          Briefcase, ChevronRight, ArrowUpRight } from 'lucide-react';
 
 interface Resource {
@@ -213,10 +213,13 @@ const FilterButton: React.FC<FilterButtonProps> = ({ isActive, onClick, children
   <Button
     onClick={onClick}
     variant={isActive ? "default" : "outline"}
-    className="w-full justify-start"
+    className={`px-4 py-2 flex items-center justify-start w-full rounded-md
+                ${isActive ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-200'}`}
   >
-    {icon}
-    <span className="ml-2">{children}</span>
+    <span className="flex items-center justify-center w-5 h-5">
+      {icon}
+    </span>
+    <span className="ml-2 text-sm font-medium">{children}</span>
   </Button>
 );
 
@@ -260,8 +263,7 @@ const ResourcesPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Mobile Category Select */}
-      <div className="lg:hidden grid grid-cols-2 gap-2 px-4">
+      <div className="flex flex-wrap gap-2 px-4 sm:px-0">
         {Object.entries(CATEGORIES).map(([key, value]) => (
           <FilterButton
             key={key}
@@ -274,20 +276,7 @@ const ResourcesPage: React.FC = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-8 px-4 sm:px-0">
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block space-y-2">
-          {Object.entries(CATEGORIES).map(([key, value]) => (
-            <FilterButton
-              key={key}
-              isActive={activeCategory === key}
-              onClick={() => setActiveCategory(key as CategoryType)}
-              icon={getIconForCategory(key as CategoryType)}
-            >
-              {value}
-            </FilterButton>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 px-4 sm:px-0">
 
         {/* Resources Grid */}
         <div className="lg:col-span-3">
