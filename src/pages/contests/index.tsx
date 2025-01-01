@@ -23,32 +23,19 @@ interface CodeforcesContest {
   startTimeSeconds: number;
 }
 
-interface LeetCodeContest {
+interface LeetCodeContestAPI {
   title: string;
   titleSlug: string;
   startTime: number;
   duration: number;
+  status: string;
 }
 
-interface AtCoderContest {
+interface AtCoderContestAPI {
   id: string;
   title: string;
-  start_time: string;
-  duration: string;
-}
-
-interface CodechefContest {
-  contest_code: string;
-  contest_name: string;
-  contest_start_date_iso: string;
-  contest_end_date_iso: string;
-}
-
-interface HackerRankContest {
-  slug: string;
-  name: string;
-  start_time: string;
-  end_time: string;
+  start_epoch_second: number;
+  duration_second: number;
 }
 
 const platforms: Record<string, { name: string; color: string; bgColor: string; borderColor: string }> = {
@@ -89,11 +76,12 @@ const ContestsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch Codeforces Contests
   async function fetchCodeforces(): Promise<Contest[]> {
     const response = await fetch('https://codeforces.com/api/contest.list');
     const data = await response.json();
     const contests = data.result as CodeforcesContest[];
-    
+
     return contests
       .filter(contest => contest.phase === "BEFORE")
       .map(contest => ({
@@ -108,46 +96,43 @@ const ContestsPage = () => {
       }));
   }
 
+  // Fetch AtCoder Contests
   async function fetchAtCoder(): Promise<Contest[]> {
-    const response = await fetch('https://atcoder.jp/contests/calendar.json');
-    const contests = await response.json() as AtCoderContest[];
+    const response = await fetch('https://kenkoooo.com/atcoder/resources/contests.json');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch AtCoder contests');
+    }
+    
+    const contests = await response.json() as AtCoderContestAPI[];
     
     return contests
-      .filter(contest => new Date(contest.start_time) > new Date())
+      .filter(contest => contest.start_epoch_second * 1000 > Date.now())
       .map(contest => ({
         id: `ac-${contest.id}`,
         platform: 'atcoder',
         name: contest.title,
-        startTime: contest.start_time,
-        endTime: new Date(new Date(contest.start_time).getTime() + 
-                 parseInt(contest.duration) * 60000).toISOString(),
-        duration: parseInt(contest.duration) * 60,
+        startTime: new Date(contest.start_epoch_second * 1000).toISOString(),
+        endTime: new Date((contest.start_epoch_second + contest.duration_second) * 1000).toISOString(),
+        duration: contest.duration_second,
         url: `https://atcoder.jp/contests/${contest.id}`,
         status: 'UPCOMING'
       }));
   }
-  
+
+  // Fetch LeetCode Contests
   async function fetchLeetCode(): Promise<Contest[]> {
-    const response = await fetch('https://leetcode.com/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `{
-          allContests {
-            title
-            titleSlug
-            startTime
-            duration
-          }
-        }`
-      })
-    });
+    const response = await fetch('https://leetcode.com/api/contest/list/');
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch LeetCode contests');
+    }
     
     const data = await response.json();
-    const contests = data.data.allContests as LeetCodeContest[];
+    const contests = data.contests as LeetCodeContestAPI[];
     
     return contests
-      .filter(contest => contest.startTime * 1000 > Date.now())
+      .filter(contest => contest.startTime * 1000 > Date.now() && contest.status === "BEFORE")
       .map(contest => ({
         id: `lc-${contest.titleSlug}`,
         platform: 'leetcode',
