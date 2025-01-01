@@ -8,7 +8,7 @@ const ContestsPage: NextPage = () => {
    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
         <h1 className="text-3xl font-bold mb-4">Live Contests</h1>
         <p className="text-lg opacity-90">
-          A structured path to master Data Structures & Algorithms
+        Participate in contests and solve problems
         </p>
       </div>
      <Contests />

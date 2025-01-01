@@ -8,7 +8,7 @@ const ResourcesPage: NextPage = () => {
        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
         <h1 className="text-3xl font-bold mb-4">Resources</h1>
         <p className="text-lg opacity-90">
-          A structured path to master Data Structures & Algorithms
+        Access curated tools and materials
         </p>
       </div>
      <Resources />

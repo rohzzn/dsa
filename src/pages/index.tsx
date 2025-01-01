@@ -12,21 +12,21 @@ export default function Home() {
    },
    {
      title: 'Contests',
-     description: 'Solve problems and improve your skills',
+     description: 'Participate in contests and solve problems',
      link: '/contests',
      bgColor: 'bg-green-50', 
      textColor: 'text-green-600'
    },
    {
      title: 'Resources',
-     description: 'Access curated learning materials',
+     description: 'Access curated tools and materials',
      link: '/resources',
      bgColor: 'bg-purple-50',
      textColor: 'text-purple-600'  
    },
    {
     title: 'Learn',
-    description: 'Access curated courses and resources',
+    description: 'Access curated learning and resources',
     link: '/learn',
      bgColor: 'bg-orange-50',
      textColor: 'text-orange-600'
