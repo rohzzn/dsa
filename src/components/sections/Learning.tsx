@@ -113,6 +113,13 @@ const learningContent = {
 const LearningPage = () => {
   return (
     <div className="space-y-12">
+         {/* Header Section */}
+         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-8 text-white">
+        <h1 className="text-3xl font-bold mb-4">Learning</h1>
+        <p className="text-lg opacity-90">
+          A structured path to master Data Structures & Algorithms
+        </p>
+      </div>
       {/* Professional Courses Section */}
       <section>
         <div className="flex items-center space-x-2 mb-6">
