@@ -53,6 +53,20 @@ export const resourcesData: Resource[] = [
       'A book focused on algorithms and problem-solving techniques for competitive programming.',
     url: 'https://cpbook.net/',
   },
+  {
+    type: 'Book',
+    title: 'Effective Java',
+    description:
+      'A programming book by Joshua Bloch focusing on best practices in Java.',
+    url: 'https://www.pearson.com/us/higher-education/program/Bloch-Effective-Java-3rd-Edition/PGM310627.html',
+  },
+  {
+    type: 'Book',
+    title: 'Python Algorithms',
+    description:
+      'Mastering algorithmic techniques in Python for solving complex problems.',
+    url: 'https://www.packtpub.com/product/python-algorithms/9781788478020',
+  },
   // Cheatsheets
   {
     type: 'Cheatsheet',
@@ -74,6 +88,41 @@ export const resourcesData: Resource[] = [
     description:
       'A quick reference guide for data structures implemented in Python.',
     url: 'https://github.com/python-engineer/python-data-structures/blob/main/README.md',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Java Programming Cheatsheet',
+    description:
+      'Essential Java programming concepts and syntax summarized.',
+    url: 'https://introcs.cs.princeton.edu/java/11cheatsheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Bash Scripting Cheatsheet',
+    description:
+      'Quick reference for common Bash scripting commands and syntax.',
+    url: 'https://devhints.io/bash',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Networking Cheatsheet',
+    description:
+      'Essential networking concepts and protocols summarized.',
+    url: 'https://www.freecodecamp.org/news/networking-cheat-sheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'SQL Cheatsheet',
+    description:
+      'Quick reference for SQL commands and queries.',
+    url: 'https://www.freecodecamp.org/news/sql-cheat-sheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Git Cheatsheet',
+    description:
+      'Essential Git commands and workflows summarized.',
+    url: 'https://education.github.com/git-cheat-sheet-education.pdf',
   },
   // Tools
   {
@@ -125,41 +174,33 @@ export const resourcesData: Resource[] = [
       'Online judge system with a vast collection of coding problems.',
     url: 'https://www.spoj.com/',
   },
-  // Websites
   {
-    type: 'Website',
-    title: 'HackerRank',
+    type: 'Tool',
+    title: 'HackerEarth',
     description:
-      'Competitive programming platform to practice coding and prepare for interviews.',
-    url: 'https://www.hackerrank.com/',
+      'Platform for practicing coding, hosting hackathons, and preparing for interviews.',
+    url: 'https://www.hackerearth.com/',
   },
   {
-    type: 'Website',
-    title: 'CodeSignal',
-    description:
-      'Platform for coding challenges and interview preparation.',
-    url: 'https://codesignal.com/',
-  },
-  {
-    type: 'Website',
+    type: 'Tool',
     title: 'TopCoder',
     description:
       'Competitive programming contests and practice problems.',
     url: 'https://www.topcoder.com/',
   },
   {
-    type: 'Website',
-    title: 'Project Euler',
+    type: 'Tool',
+    title: 'Codewars',
     description:
-      'Series of challenging mathematical/computer programming problems.',
-    url: 'https://projecteuler.net/',
+      'Platform to train coding skills through challenges and kata.',
+    url: 'https://www.codewars.com/',
   },
   {
-    type: 'Website',
-    title: 'FreeCodeCamp',
+    type: 'Tool',
+    title: 'CodeSignal',
     description:
-      'Comprehensive tutorials and interactive coding lessons on algorithms and data structures.',
-    url: 'https://www.freecodecamp.org/',
+      'Platform for coding challenges and interview preparation.',
+    url: 'https://codesignal.com/',
   },
   // Courses
   {
@@ -192,6 +233,14 @@ export const resourcesData: Resource[] = [
       'Courses from various universities covering DSA topics.',
     url: 'https://www.edx.org/learn/data-structures',
   },
+  {
+    type: 'Course',
+    title:
+      'Advanced Data Structures and Algorithms (Udemy)',
+    description:
+      'Deep dive into advanced data structures and algorithmic techniques.',
+    url: 'https://www.udemy.com/course/advanced-data-structures-and-algorithms/',
+  },
   // Interactive Platforms
   {
     type: 'Interactive',
@@ -206,6 +255,20 @@ export const resourcesData: Resource[] = [
     description:
       'Platform to train coding skills through challenges and kata.',
     url: 'https://www.codewars.com/',
+  },
+  {
+    type: 'Interactive',
+    title: 'Coderbyte',
+    description:
+      'Platform with coding challenges and interview prep resources.',
+    url: 'https://coderbyte.com/',
+  },
+  {
+    type: 'Interactive',
+    title: 'Exercism',
+    description:
+      'Interactive platform offering coding exercises in various programming languages.',
+    url: 'https://exercism.io/',
   },
   // Community
   {
@@ -229,6 +292,126 @@ export const resourcesData: Resource[] = [
       'A subreddit for learning programming, sharing resources, and getting help.',
     url: 'https://www.reddit.com/r/learnprogramming/',
   },
-  // Additional Resources
+  {
+    type: 'Community',
+    title: 'Stack Overflow',
+    description:
+      'Community-driven Q&A platform for programming-related questions.',
+    url: 'https://stackoverflow.com/',
+  },
+  {
+    type: 'Community',
+    title: 'Dev.to',
+    description:
+      'Community of developers sharing articles, tutorials, and discussions.',
+    url: 'https://dev.to/',
+  },
+  // Cheatsheets for Various Topics
+  {
+    type: 'Cheatsheet',
+    title: 'Bash Scripting Cheatsheet',
+    description:
+      'Quick reference for common Bash scripting commands and syntax.',
+    url: 'https://devhints.io/bash',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Python Data Structures Cheatsheet',
+    description:
+      'A quick reference guide for data structures implemented in Python.',
+    url: 'https://github.com/python-engineer/python-data-structures/blob/main/README.md',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Java Programming Cheatsheet',
+    description:
+      'Essential Java programming concepts and syntax summarized.',
+    url: 'https://introcs.cs.princeton.edu/java/11cheatsheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Networking Cheatsheet',
+    description:
+      'Essential networking concepts and protocols summarized.',
+    url: 'https://www.freecodecamp.org/news/networking-cheat-sheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'SQL Cheatsheet',
+    description:
+      'Quick reference for SQL commands and queries.',
+    url: 'https://www.freecodecamp.org/news/sql-cheat-sheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Git Cheatsheet',
+    description:
+      'Essential Git commands and workflows summarized.',
+    url: 'https://education.github.com/git-cheat-sheet-education.pdf',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'CSS Flexbox Cheatsheet',
+    description:
+      'Quick reference for CSS Flexbox properties and usage.',
+    url: 'https://css-tricks.com/snippets/css/a-guide-to-flexbox/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'React Cheatsheet',
+    description:
+      'Essential React concepts and syntax summarized.',
+    url: 'https://devhints.io/react',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Docker Cheatsheet',
+    description:
+      'Quick reference for Docker commands and workflows.',
+    url: 'https://dockerlabs.collabnix.com/docker/cheatsheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'Kubernetes Cheatsheet',
+    description:
+      'Essential Kubernetes commands and configurations summarized.',
+    url: 'https://kubernetes.io/docs/reference/kubectl/cheatsheet/',
+  },
+  // Additional Cheatsheets
+  {
+    type: 'Cheatsheet',
+    title: 'C++ Cheatsheet',
+    description:
+      'Quick reference for C++ programming concepts and syntax.',
+    url: 'https://www.cheatography.com/davechild/cheat-sheets/c-plus-plus/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'TypeScript Cheatsheet',
+    description:
+      'Essential TypeScript syntax and concepts summarized.',
+    url: 'https://www.typescriptlang.org/docs/handbook/2/basic-types.html',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'React Hooks Cheatsheet',
+    description:
+      'Quick reference for React Hooks and their usage.',
+    url: 'https://www.robinwieruch.de/react-hooks-cheatsheet',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'REST API Cheatsheet',
+    description:
+      'Essential REST API concepts and best practices summarized.',
+    url: 'https://www.freecodecamp.org/news/rest-api-cheatsheet/',
+  },
+  {
+    type: 'Cheatsheet',
+    title: 'GraphQL Cheatsheet',
+    description:
+      'Quick reference for GraphQL queries, mutations, and schemas.',
+    url: 'https://graphql.org/learn/queries/',
+  },
   // Add more resources as needed following the same structure
 ]

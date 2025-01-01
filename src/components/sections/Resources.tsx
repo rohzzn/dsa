@@ -39,8 +39,6 @@ const Resources: React.FC = () => {
         return <BookOpen className="w-5 h-5 text-blue-600" />
       case 'tool':
         return <Code className="w-5 h-5 text-green-600" />
-      case 'website':
-        return <Globe className="w-5 h-5 text-purple-600" />
       case 'course':
         return <Code className="w-5 h-5 text-yellow-600" />
       case 'interactive':
@@ -97,83 +95,37 @@ const Resources: React.FC = () => {
       </div>
 
       {/* Display Resources */}
-      {selectedCategory === 'All'
-        ? categories.map((category) => (
-            <div key={category}>
-              <h2 className="text-2xl font-bold mb-4">{category}</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {resourcesByCategory[category].map(
-                  (resource, index) => (
-                    <Card key={index}>
-                      <CardHeader>
-                        <div className="flex items-center space-x-2">
-                          {getResourceIcon(resource.type)}
-                          <CardTitle className="text-lg">
-                            {resource.title}
-                          </CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-600 mb-4">
-                          {resource.description}
-                        </p>
-                        {resource.url && (
-                          <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                          >
-                            <span>Access Resource</span>
-                            <Globe className="w-4 h-4" />
-                          </a>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )
-                )}
-              </div>
-            </div>
-          ))
-        : (
-          <div key={selectedCategory}>
-            <h2 className="text-2xl font-bold mb-4">
-              {selectedCategory}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {resourcesByCategory[selectedCategory]?.map(
-                (resource, index) => (
-                  <Card key={index}>
-                    <CardHeader>
-                      <div className="flex items-center space-x-2">
-                        {getResourceIcon(resource.type)}
-                        <CardTitle className="text-lg">
-                          {resource.title}
-                        </CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 mb-4">
-                        {resource.description}
-                      </p>
-                      {resource.url && (
-                        <a
-                          href={resource.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                        >
-                          <span>Access Resource</span>
-                          <Globe className="w-4 h-4" />
-                        </a>
-                      )}
-                    </CardContent>
-                  </Card>
-                )
-              )}
-            </div>
+      {Object.entries(resourcesByCategory).map(([category, resources]) => (
+        <div key={category}>
+          <h2 className="text-2xl font-bold mb-4">{category}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    {getResourceIcon(resource.type)}
+                    <CardTitle className="text-lg">{resource.title}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">{resource.description}</p>
+                  {resource.url && (
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 flex items-center space-x-1"
+                    >
+                      <span>Access Resource</span>
+                      <Globe className="w-4 h-4" />
+                    </a>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        )}
+        </div>
+      ))}
     </div>
   )
 }
