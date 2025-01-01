@@ -11,9 +11,9 @@ export default function Home() {
      textColor: 'text-blue-600'
    },
    {
-     title: 'Practice',
+     title: 'Contests',
      description: 'Solve problems and improve your skills',
-     link: '/practice',
+     link: '/contests',
      bgColor: 'bg-green-50', 
      textColor: 'text-green-600'
    },
