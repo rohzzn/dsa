@@ -6,7 +6,7 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="text-2xl font-bold text-blue-600 hover:text-blue-700">
-            dsa.gay 
+            Learn Dsa Dev 
           </Link>
           <nav className="flex items-center space-x-8">
             <Link href="/roadmap" className="text-gray-600 hover:text-blue-600 font-medium">

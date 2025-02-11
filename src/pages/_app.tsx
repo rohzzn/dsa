@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <Layout>
       <Head>
-        <title>dsa.gay</title> {/* Replace with your desired title */}
+        <title>Learn Dsa Dev</title> {/* Replace with your desired title */}
         <meta name="description" content="Learn Data Structures and Algorithms" />
         <link rel="icon" href="/favicon.png" /> {/* Ensure the path is correct */}
       </Head>

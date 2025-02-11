@@ -48,6 +48,7 @@ interface CodeChefAPIResponse {
   [key: string]: any;
 }
 
+
 interface CodeChefContestItem {
   contest_code: string;
   contest_name: string;
