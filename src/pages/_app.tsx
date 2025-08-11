@@ -4,16 +4,19 @@ import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import Layout from '@/components/layout/Layout'
 import Head from 'next/head'
+import { ClerkProvider } from '@clerk/nextjs'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Layout>
-      <Head>
-        <title>Learn Dsa Dev</title> {/* Replace with your desired title */}
-        <meta name="description" content="Learn Data Structures and Algorithms" />
-        <link rel="icon" href="/favicon.png" /> {/* Ensure the path is correct */}
-      </Head>
-      <Component {...pageProps} />
-    </Layout>
+    <ClerkProvider>
+      <Layout>
+        <Head>
+          <title>Learn Dsa Dev</title>
+          <meta name="description" content="Learn Data Structures and Algorithms" />
+          <link rel="icon" href="/favicon.png" />
+        </Head>
+        <Component {...pageProps} />
+      </Layout>
+    </ClerkProvider>
   )
 }

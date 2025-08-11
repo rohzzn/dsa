@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ArrowRight, CheckSquare, Code, Brain, Zap, Target, Network, Laptop, Database, Layers, Timer,  Book, Youtube } from 'lucide-react';
+import { useUser, SignedIn, SignedOut } from '@clerk/nextjs';
 
 const roadmapData = {
   steps: [
@@ -280,7 +281,47 @@ const roadmapData = {
   ]
 };
 
+type RoadmapItemKey = string
+
 const RoadmapPage = () => {
+  const { isSignedIn, isLoaded, user } = useUser()
+  const [progress, setProgress] = useState<Record<RoadmapItemKey, boolean>>({})
+  const flatItemKeys = useMemo(() => {
+    const keys: string[] = []
+    roadmapData.steps.forEach((step, stepIdx) => {
+      step.topics.forEach((topic, topicIdx) => {
+        topic.problems.forEach((problem, problemIdx) => {
+          keys.push(`${stepIdx}.${topicIdx}.p.${problemIdx}`)
+        })
+        topic.resources.forEach((res, resIdx) => {
+          keys.push(`${stepIdx}.${topicIdx}.r.${resIdx}`)
+        })
+      })
+    })
+    return keys
+  }, [])
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return
+    const meta = (user.unsafeMetadata as any) || {}
+    const saved = (meta.roadmapProgress as Record<string, boolean>) || {}
+    setProgress(saved)
+  }, [isLoaded, isSignedIn, user])
+
+  const toggleItem = async (key: RoadmapItemKey) => {
+    const updated = { ...progress, [key]: !progress[key] }
+    setProgress(updated)
+    if (isSignedIn && user) {
+      const current = (user.unsafeMetadata as any) || {}
+      const existing = (current.roadmapProgress as Record<string, boolean>) || {}
+      const merged = { ...existing, [key]: updated[key] }
+      await user.update({ unsafeMetadata: { ...current, roadmapProgress: merged } })
+    }
+  }
+
+  const completedCount = flatItemKeys.filter((k) => progress[k]).length
+  const totalCount = flatItemKeys.length
+
   return (
     <div className="space-y-8">
       {/* Header Section */}
@@ -297,7 +338,7 @@ const RoadmapPage = () => {
           { icon: <Timer className="w-5 h-5" />, text: "3-4 months commitment" },
           { icon: <Target className="w-5 h-5" />, text: "75+ handpicked problems" },
           { icon: <Youtube className="w-5 h-5" />, text: "Curated video resources" },
-          { icon: <Book className="w-5 h-5" />, text: "Progressive difficulty" }
+          { icon: <Book className="w-5 h-5" />, text: `Progress: ${completedCount}/${totalCount}` }
         ].map((item, i) => (
           <Card key={i} className="bg-gray-50">
             <CardContent className="p-4 flex items-center space-x-2">
@@ -340,13 +381,21 @@ const RoadmapPage = () => {
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-gray-700">Learning Resources:</h4>
                       {topic.resources.map((resource, idx) => (
-                        <a key={idx} href={resource.link} target="_blank" rel="noopener noreferrer" 
-                           className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600">
-                          {resource.type === 'video' && <Youtube className="w-4 h-4" />}
-                          {resource.type === 'article' && <Book className="w-4 h-4" />}
-                          {resource.type === 'practice' && <Target className="w-4 h-4" />}
-                          <span className="hover:underline">{resource.name}</span>
-                        </a>
+                        <div key={idx} className="flex items-center justify-between">
+                          <a href={resource.link} target="_blank" rel="noopener noreferrer" 
+                             className="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600">
+                            {resource.type === 'video' && <Youtube className="w-4 h-4" />}
+                            {resource.type === 'article' && <Book className="w-4 h-4" />}
+                            {resource.type === 'practice' && <Target className="w-4 h-4" />}
+                            <span className="hover:underline">{resource.name}</span>
+                          </a>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-blue-600"
+                            checked={!!progress[`${index}.${topicIndex}.r.${idx}`]}
+                            onChange={() => toggleItem(`${index}.${topicIndex}.r.${idx}`)}
+                          />
+                        </div>
                       ))}
                     </div>
 
@@ -354,16 +403,26 @@ const RoadmapPage = () => {
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium text-gray-700">Practice Problems:</h4>
                       {topic.problems.map((problem, idx) => (
-                        <a key={idx} href={problem.link} target="_blank" rel="noopener noreferrer" 
-                           className="flex items-center justify-between text-sm text-gray-600 hover:text-blue-600">
-                          <span className="hover:underline">{problem.name}</span>
-                          <span className={`px-2 py-1 rounded text-xs font-medium
-                            ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-700' : 
-                              problem.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 
-                              'bg-red-100 text-red-700'}`}>
-                            {problem.difficulty}
-                          </span>
-                        </a>
+                        <div key={idx} className="flex items-center justify-between text-sm text-gray-600">
+                          <a href={problem.link} target="_blank" rel="noopener noreferrer" 
+                             className="hover:text-blue-600">
+                            <span className="hover:underline">{problem.name}</span>
+                          </a>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-2 py-1 rounded text-xs font-medium
+                              ${problem.difficulty === 'Easy' ? 'bg-green-100 text-green-700' : 
+                                problem.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 
+                                'bg-red-100 text-red-700'}`}>
+                              {problem.difficulty}
+                            </span>
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 accent-blue-600"
+                              checked={!!progress[`${index}.${topicIndex}.p.${idx}`]}
+                              onChange={() => toggleItem(`${index}.${topicIndex}.p.${idx}`)}
+                            />
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -402,6 +461,14 @@ const RoadmapPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      <SignedOut>
+        <Card className="border-2">
+          <CardContent className="p-6 text-sm text-gray-700">
+            Sign in to save your roadmap progress across devices.
+          </CardContent>
+        </Card>
+      </SignedOut>
     </div>
   );
 };
