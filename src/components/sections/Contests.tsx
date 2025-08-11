@@ -17,44 +17,21 @@ interface Contest {
   status: 'UPCOMING' | 'ONGOING';
 }
 
-type PlatformType = 'all' | 'leetcode' | 'codeforces' | 'codechef';
+type PlatformType =
+  | 'all'
+  | 'leetcode'
+  | 'codeforces'
+  | 'codechef'
+  | 'atcoder'
+  | 'hackerrank'
+  | 'hackerearth'
+  | 'topcoder'
+  | 'csacademy'
+  | 'other';
 
-// For Codeforces JSON
-interface CodeforcesContest {
-  id: number;
-  name: string;
-  phase: string;           // "BEFORE", "CODING", "FINISHED"
-  durationSeconds: number;
-  startTimeSeconds: number;
-}
-
-// For LeetCode’s /contest/api/list
-interface LeetCodeAPIResponse {
-  currentTimestamp: number;  // in seconds
-  contests: Array<{
-    id: number;
-    title: string;
-    titleSlug: string;
-    startTime: number;      // in seconds
-    duration: number;       // in seconds
-  }>;
-}
-
-// For CodeChef’s /api/list/contests/all
-interface CodeChefAPIResponse {
-  // Typically returns object with these keys:
-  future_contests: Array<CodeChefContestItem>;
-  present_contests: Array<CodeChefContestItem>;
-  [key: string]: any;
-}
-
-
-interface CodeChefContestItem {
-  contest_code: string;
-  contest_name: string;
-  contest_start_date_iso: string; // e.g. '2025-01-01T10:00:00+05:30'
-  contest_end_date_iso: string;
-  // many other fields, we only need a few
+// API response shape from our server aggregator
+interface AllContestsApiResponse {
+  contests: Contest[];
 }
 
 // Platform configs for styling
@@ -82,6 +59,42 @@ const platforms = {
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
     borderColor: 'border-purple-200',
+  },
+  atcoder: {
+    name: 'AtCoder',
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+  },
+  hackerrank: {
+    name: 'HackerRank',
+    color: 'text-green-700',
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-200',
+  },
+  hackerearth: {
+    name: 'HackerEarth',
+    color: 'text-indigo-700',
+    bgColor: 'bg-indigo-50',
+    borderColor: 'border-indigo-200',
+  },
+  topcoder: {
+    name: 'Topcoder',
+    color: 'text-pink-700',
+    bgColor: 'bg-pink-50',
+    borderColor: 'border-pink-200',
+  },
+  csacademy: {
+    name: 'CSAcademy',
+    color: 'text-emerald-700',
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
+  },
+  other: {
+    name: 'Other',
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-50',
+    borderColor: 'border-gray-200',
   },
 };
 
@@ -196,137 +209,16 @@ const ContestsPage: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformType>('all');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-  // ========== Codeforces ==========
-  const fetchCodeforces = async (): Promise<Contest[]> => {
+  // Single server-side aggregator fetch
+  const fetchAllContests = async (): Promise<Contest[]> => {
     try {
-      const response = await fetch('https://codeforces.com/api/contest.list');
-      if (!response.ok) throw new Error('Codeforces API error');
-      const data = await response.json();
-      if (!data?.result) return [];
-
-      // Filter to keep only BEFORE or CODING
-      const rawCF = data.result.filter(
-        (c: CodeforcesContest) => c.phase === 'BEFORE' || c.phase === 'CODING'
-      );
-
-      return rawCF.map((c: CodeforcesContest) => {
-        const start = c.startTimeSeconds * 1000;
-        const duration = c.durationSeconds;
-        const end = start + duration * 1000;
-        const now = Date.now();
-        const status = now < start ? 'UPCOMING' : 'ONGOING';
-
-        return {
-          id: `cf-${c.id}`,
-          platform: 'codeforces',
-          name: c.name,
-          startTime: new Date(start).toISOString(),
-          endTime: new Date(end).toISOString(),
-          duration,
-          url: `https://codeforces.com/contest/${c.id}`,
-          status,
-        };
-      });
-    } catch (error) {
-      console.error('Codeforces fetch error:', error);
-      return [];
-    }
-  };
-
-  // ========== LeetCode ==========
-  const fetchLeetCode = async (): Promise<Contest[]> => {
-    try {
-      const response = await fetch('https://leetcode.com/contest/api/list');
-      if (!response.ok) throw new Error('LeetCode API error');
-      const data: LeetCodeAPIResponse = await response.json();
+      const response = await fetch('/api/contests/all');
+      if (!response.ok) throw new Error('Aggregator API error');
+      const data: AllContestsApiResponse = await response.json();
       if (!data?.contests) return [];
-
-      const now = data.currentTimestamp; // seconds
-      const res: Contest[] = [];
-      for (const c of data.contests) {
-        const st = c.startTime; // seconds
-        const en = c.startTime + c.duration; // seconds
-        if (en < now) {
-          // Finished
-          continue;
-        }
-        const status = now < st ? 'UPCOMING' : 'ONGOING';
-        res.push({
-          id: `lc-${c.id}`,
-          platform: 'leetcode',
-          name: c.title,
-          startTime: new Date(st * 1000).toISOString(),
-          endTime: new Date(en * 1000).toISOString(),
-          duration: c.duration,
-          url: `https://leetcode.com/contest/${c.titleSlug}`,
-          status,
-        });
-      }
-      return res;
+      return data.contests as Contest[];
     } catch (error) {
-      console.error('LeetCode fetch error:', error);
-      return [];
-    }
-  };
-
-  // ========== CodeChef ==========
-  const fetchCodeChef = async (): Promise<Contest[]> => {
-    try {
-      const response = await fetch(
-        'https://www.codechef.com/api/list/contests/all?sort_by=STARTTIME&sorting_order=asc'
-      );
-      if (!response.ok) throw new Error('CodeChef API error');
-      const data: CodeChefAPIResponse = await response.json();
-
-      // We only want "future_contests" (upcoming) and "present_contests" (ongoing)
-      const upcoming = data.future_contests || [];
-      const ongoing = data.present_contests || [];
-      const results: Contest[] = [];
-
-      // Future => UPCOMING
-      for (const c of upcoming) {
-        // parse start/end times
-        const start = Date.parse(c.contest_start_date_iso);
-        const end = Date.parse(c.contest_end_date_iso);
-        const now = Date.now();
-        const durationSec = Math.floor((end - start) / 1000);
-        if (end <= now) continue; // already ended
-
-        results.push({
-          id: `cc-${c.contest_code}`,
-          platform: 'codechef',
-          name: c.contest_name,
-          startTime: new Date(start).toISOString(),
-          endTime: new Date(end).toISOString(),
-          duration: durationSec,
-          url: `https://www.codechef.com/${c.contest_code}`,
-          status: 'UPCOMING',
-        });
-      }
-
-      // Present => ONGOING
-      for (const c of ongoing) {
-        const start = Date.parse(c.contest_start_date_iso);
-        const end = Date.parse(c.contest_end_date_iso);
-        const now = Date.now();
-        if (end <= now) continue; // ended
-
-        const durationSec = Math.floor((end - start) / 1000);
-        results.push({
-          id: `cc-${c.contest_code}`,
-          platform: 'codechef',
-          name: c.contest_name,
-          startTime: new Date(start).toISOString(),
-          endTime: new Date(end).toISOString(),
-          duration: durationSec,
-          url: `https://www.codechef.com/${c.contest_code}`,
-          status: 'ONGOING',
-        });
-      }
-
-      return results;
-    } catch (error) {
-      console.error('CodeChef fetch error:', error);
+      console.error('All contests fetch error:', error);
       return [];
     }
   };
@@ -337,14 +229,7 @@ const ContestsPage: React.FC = () => {
   const fetchContests = async (): Promise<void> => {
     try {
       setLoading(true);
-      const [codeforcesContests, leetcodeContests, codechefContests] = await Promise.all([
-        fetchCodeforces(),
-        fetchLeetCode(),
-        fetchCodeChef(),
-      ]);
-      const all = [...codeforcesContests, ...leetcodeContests, ...codechefContests];
-      all.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
+      const all = await fetchAllContests();
       setContests(all);
       setLastUpdated(new Date());
     } catch (err) {
@@ -382,6 +267,9 @@ const ContestsPage: React.FC = () => {
     selectedPlatform === 'all'
       ? contests
       : contests.filter((c) => c.platform === selectedPlatform);
+
+  const ongoing = filteredContests.filter((c) => c.status === 'ONGOING');
+  const upcoming = filteredContests.filter((c) => c.status === 'UPCOMING');
 
   if (loading) {
     return (
@@ -460,17 +348,36 @@ const ContestsPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Contest Cards */}
-      <div className="grid grid-cols-1 gap-6">
-        {filteredContests.length > 0 ? (
-          filteredContests.map((contest) => (
-            <ContestCard key={contest.id} contest={contest} addToCalendar={addToCalendar} />
-          ))
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No upcoming contests found for this platform.</p>
-          </div>
-        )}
+      {/* Ongoing */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Ongoing</h2>
+        <div className="grid grid-cols-1 gap-6">
+          {ongoing.length > 0 ? (
+            ongoing.map((contest) => (
+              <ContestCard key={contest.id} contest={contest} addToCalendar={addToCalendar} />
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No ongoing contests for this platform.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Upcoming */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Upcoming</h2>
+        <div className="grid grid-cols-1 gap-6">
+          {upcoming.length > 0 ? (
+            upcoming.map((contest) => (
+              <ContestCard key={contest.id} contest={contest} addToCalendar={addToCalendar} />
+            ))
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No upcoming contests for this platform.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
